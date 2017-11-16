@@ -173,7 +173,7 @@ double PairHighestPricePaid(string symbol)
    return num;
   }
 //+------------------------------------------------------------------+
-//|Gets the highest price paid for any order on the given pair.      |
+//|Gets the direction the given symbol is already traded in.         |
 //+------------------------------------------------------------------+
 Enum_Direction PairDirection(string symbol)
   {
@@ -242,7 +242,7 @@ void SetStopLossOpenOrders(string symbol)
          if(OrderType()==OP_BUY)
            {
             sl=NormalizeDouble((bid+pa)/2,Digits);
-            if(OrderStopLoss()==0 || sl>OrderStopLoss()) 
+            if(OrderStopLoss()==0 || sl>OrderStopLoss())
               {
                bool ret=OrderModify(OrderTicket(),OrderOpenPrice(),sl,OrderTakeProfit(),0);
                if(!ret)
@@ -276,8 +276,8 @@ void OpenOrder(string symbol,Enum_Direction buyingOrSelling)
    double minLot=MarketInfo(symbol,MODE_MINLOT);
    double maxLot=MarketInfo(symbol,MODE_MAXLOT);
    double orderSize=PairLotsTotal(symbol)*IncreaseFactor;
-   //double riskFactor = (20 / iADX(symbol,PERIOD_W1,104,PRICE_CLOSE,MODE_MAIN,0));
-   double riskFactor = 1;
+//double riskFactor = (20 / iADX(symbol,PERIOD_W1,104,PRICE_CLOSE,MODE_MAIN,0));
+   double riskFactor=1;
    if(orderSize<minLot)
      {
       double accountSizedLots=(AccountBalance()/100000)*StartFactor*riskFactor;
@@ -330,7 +330,7 @@ void OpenOrder(string symbol,Enum_Direction buyingOrSelling)
 //+------------------------------------------------------------------+
 //|Gets the direction to trade in for the given symbol.              |
 //+------------------------------------------------------------------+
-Enum_Direction GetDirection(string symbol)
+Enum_Direction GetBiasDirection(string symbol)
   {
    double custAvgNow=iMA(symbol,BiasTimeframe,BiasPeriod,0,MODE_SMA,PRICE_CLOSE,1);
    double custAvgLookback=iMA(symbol,BiasTimeframe,BiasPeriod,0,MODE_SMA,PRICE_CLOSE,BiasLookback);
@@ -415,11 +415,11 @@ double GetDrawdownPercent()
 //+------------------------------------------------------------------+
 int GetLockFactor()
   {
-   int lockFactor = -25 + OrdersTotal();
-   if(lockFactor > -1)
-   {
-     lockFactor = -1;
-   }
+   int lockFactor=-25+OrdersTotal();
+   if(lockFactor>-1)
+     {
+      lockFactor=-1;
+     }
    return lockFactor;
   }
 //+------------------------------------------------------------------+
@@ -452,7 +452,9 @@ void PositionManagement()
    double CurrentClosePrice=0;
    string dirMsg="No Direction";
 
-   if(PairAveragePrice>0 && Direction==NONE)
+// manual entry could initialize the trades while the
+// "Direction" latch is considering the opposite direction.
+   if(PairAveragePrice>0)
      {
       Direction=PairDirection(Pair);
      }
@@ -482,7 +484,7 @@ void PositionManagement()
    bool tradingTime=IsTimeBetween(StartDay,StartHour,EndDay,EndHour);
    if(PairAveragePrice==0 && tradingTime)
      {
-      Direction=GetDirection(Pair);
+      Direction=GetBiasDirection(Pair);
       if(Direction!=NONE)
         {
          Print("Opening order, initializing position.");
@@ -490,7 +492,7 @@ void PositionManagement()
         }
       return;
      }
-   else if(AccountFreeMargin()<AccountEquity()*0.05)
+   else if(AccountFreeMargin()<AccountBalance()*0.05)
      {
       Print("Closing orders, account free margin is too low.");
       CloseOpenOrders(Pair);
