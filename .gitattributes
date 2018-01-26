@@ -20,4 +20,5 @@
 *.PDF	 diff=astextplain
 *.rtf	 diff=astextplain
 *.RTF	 diff=astextplain
-*.mq4	 diff=astextplain
+
+*.mq4	 diff
