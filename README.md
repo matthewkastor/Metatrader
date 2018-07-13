@@ -1,2 +1,2 @@
 # Metatrader
-bots and indicators for metatrader
+Expert advisors, scripts, indicators and code libraries for Metatrader.
