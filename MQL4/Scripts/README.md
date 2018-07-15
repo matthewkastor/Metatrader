@@ -19,6 +19,10 @@ This script sets the zoom level for all opened charts simultaneously. This saves
 
 This script will change the timeframe of all the opened charts. It has one setting for selecting the desired timeframe. This saves me a lot of time when doing multi timeframe analysis across 12 currency pairs simultaneously.
 
+## Scroll Sync Charts
+
+This script allows for multi-timeframe analysis by opening a second chart set to a different timeframe, then keeping the edge of both charts at the same time while you scroll.
+
 ## Start External Process
 
 This script allows you to start any arbitrary external program. Use it as-is or as a starting point for something amazing.
