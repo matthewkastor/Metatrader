@@ -27,7 +27,7 @@ In order for this script to work, you will have to allow it to import DLLs. The 
 
 __Script Parameters__
 
-Executable name : The executable to run. Include the full path to it if you have to.
-Commandline parameters : Optional, you can use switches and arguments here.
-Working directory : Optional, specify the working directory.
-Window display mode : Set the option for how you want the application to launch.
+ - Executable name : The executable to run. Include the full path to it if you have to.
+ - Commandline parameters : Optional, you can use switches and arguments here.
+ - Working directory : Optional, specify the working directory.
+ - Window display mode : Set the option for how you want the application to launch.
