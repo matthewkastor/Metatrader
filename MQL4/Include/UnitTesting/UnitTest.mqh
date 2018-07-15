@@ -69,6 +69,8 @@ private:
    int               m_allTestCount;
    int               m_successTestCount;
    int               m_failureTestCount;
+   int               m_successAssertionCount;
+   int               m_failureAssertionCount;
    CList             m_testList;
 
    UnitTestData     *findTest(string name);
@@ -127,7 +129,9 @@ void UnitTest::clearTestList(void)
    if(m_testList.GetLastNode()!=NULL)
      {
       while(m_testList.DeleteCurrent())
-         ;
+        {
+         // just keeps deleting until there are none left.
+        };
      }
   }
 //+------------------------------------------------------------------+
@@ -155,6 +159,7 @@ void UnitTest::setSuccess(string name)
 
    if(test!=NULL)
      {
+      m_successAssertionCount+=1;
       if(test.m_asserted)
         {
          return;
@@ -162,9 +167,6 @@ void UnitTest::setSuccess(string name)
 
       test.m_result=true;
       test.m_asserted=true;
-
-      m_successTestCount+= 1;
-      m_failureTestCount = m_allTestCount - m_successTestCount;
      }
   }
 //+------------------------------------------------------------------+
@@ -176,12 +178,10 @@ void UnitTest::setFailure(string name,string message)
 
    if(test!=NULL)
      {
+      m_failureAssertionCount+=1;
       test.m_result=false;
-      test.m_message=message;
+      test.m_message=StringConcatenate(test.m_message, message);
       test.m_asserted=true;
-
-      m_failureTestCount+= 1;
-      m_successTestCount = m_allTestCount - m_failureTestCount;
      }
   }
 //+------------------------------------------------------------------+
@@ -197,10 +197,12 @@ void UnitTest::printSummary(void)
      {
       if(data.m_result)
         {
+         m_successTestCount+=1;
          this.Logger.Log(StringFormat("UnitTest : Result : PASS : %s",data.m_name));
         }
       else
         {
+         m_failureTestCount+=1;
          this.Logger.Log(StringFormat("UnitTest : Result : FAIL : %s : %s",data.m_name,data.m_message));
         }
      }
@@ -208,15 +210,29 @@ void UnitTest::printSummary(void)
    double successPercent= 100.0 * m_successTestCount/m_allTestCount;
    double failurePrcent = 100.0 * m_failureTestCount/m_allTestCount;
 
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Run : %d",m_allTestCount));
+   int totalAssertions=m_successAssertionCount+m_failureAssertionCount;
+   double assertSuccessPercent= 100.0 * m_successAssertionCount/totalAssertions;
+   double assertFailurePrcent = 100.0 * m_failureAssertionCount/totalAssertions;
+   
+   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Tests Run : %d",m_allTestCount));
 
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Pass : %d",m_successTestCount));
+   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Assertions Run : %d",totalAssertions));
 
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Pass Rate : %.2f%%",successPercent));
+   this.Logger.Log(StringFormat("UnitTest : Results Summary : Test Pass Rate : %.2f%%",successPercent));
 
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Fail : %d",m_failureTestCount));
+   this.Logger.Log(StringFormat("UnitTest : Results Summary : Assertion Pass Rate : %.2f%%",assertSuccessPercent));
 
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Fail Rate : %.2f%%",failurePrcent));
+   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Tests Pass : %d",m_successTestCount));
+
+   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Assertions Pass : %d",m_successAssertionCount));
+
+   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Tests Fail : %d",m_failureTestCount));
+
+   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Assertions Fail : %d",m_failureAssertionCount));
+
+   this.Logger.Log(StringFormat("UnitTest : Results Summary : Test Fail Rate : %.2f%%",failurePrcent));
+
+   this.Logger.Log(StringFormat("UnitTest : Results Summary : Assertion Fail Rate : %.2f%%",assertFailurePrcent));
 
    this.Logger.Log("UnitTest : Results Summary : End");
   }
@@ -231,7 +247,7 @@ void UnitTest::assertEquals(string name,string message,bool expected,bool actual
      }
    else
      {
-      string m=StringConcatenate(message,": expected is <",expected,"> but <",actual,">");
+      string m=StringConcatenate(message,": expected <",expected,"> but found <",actual,">");
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -247,8 +263,8 @@ void UnitTest::assertEquals(string name,string message,char expected,char actual
      }
    else
      {
-      string m=message+": expected is <"+CharToString(expected)+
-               "> but <"+CharToString(actual)+">";
+      string m=message+": expected <"+CharToString(expected)+
+               "> but found <"+CharToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -264,8 +280,8 @@ void UnitTest::assertEquals(string name,string message,uchar expected,uchar actu
      }
    else
      {
-      string m=message+": expected is <"+CharToString(expected)+
-               "> but <"+CharToString(actual)+">";
+      string m=message+": expected <"+CharToString(expected)+
+               "> but found <"+CharToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -281,8 +297,8 @@ void UnitTest::assertEquals(string name,string message,short expected,short actu
      }
    else
      {
-      string m=message+": expected is <"+IntegerToString(expected)+
-               "> but <"+IntegerToString(actual)+">";
+      string m=message+": expected <"+IntegerToString(expected)+
+               "> but found <"+IntegerToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -298,8 +314,8 @@ void UnitTest::assertEquals(string name,string message,ushort expected,ushort ac
      }
    else
      {
-      string m=message+": expected is <"+IntegerToString(expected)+
-               "> but <"+IntegerToString(actual)+">";
+      string m=message+": expected <"+IntegerToString(expected)+
+               "> but found <"+IntegerToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -315,8 +331,8 @@ void UnitTest::assertEquals(string name,string message,int expected,int actual)
      }
    else
      {
-      string m=message+": expected is <"+IntegerToString(expected)+
-               "> but <"+IntegerToString(actual)+">";
+      string m=message+": expected <"+IntegerToString(expected)+
+               "> but found <"+IntegerToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -332,8 +348,8 @@ void UnitTest::assertEquals(string name,string message,uint expected,uint actual
      }
    else
      {
-      string m=message+": expected is <"+IntegerToString(expected)+
-               "> but <"+IntegerToString(actual)+">";
+      string m=message+": expected <"+IntegerToString(expected)+
+               "> but found <"+IntegerToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -349,8 +365,8 @@ void UnitTest::assertEquals(string name,string message,long expected,long actual
      }
    else
      {
-      string m=message+": expected is <"+IntegerToString(expected)+
-               "> but <"+IntegerToString(actual)+">";
+      string m=message+": expected <"+IntegerToString(expected)+
+               "> but found <"+IntegerToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -366,8 +382,8 @@ void UnitTest::assertEquals(string name,string message,ulong expected,ulong actu
      }
    else
      {
-      string m=message+": expected is <"+IntegerToString(expected)+
-               "> but <"+IntegerToString(actual)+">";
+      string m=message+": expected <"+IntegerToString(expected)+
+               "> but found <"+IntegerToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -383,8 +399,8 @@ void UnitTest::assertEquals(string name,string message,datetime expected,datetim
      }
    else
      {
-      string m=message+": expected is <"+TimeToString(expected)+
-               "> but <"+TimeToString(actual)+">";
+      string m=message+": expected <"+TimeToString(expected)+
+               "> but found <"+TimeToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -400,8 +416,8 @@ void UnitTest::assertEquals(string name,string message,color expected,color actu
      }
    else
      {
-      string m=message+": expected is <"+ColorToString(expected)+
-               "> but <"+ColorToString(actual)+">";
+      string m=message+": expected <"+ColorToString(expected)+
+               "> but found <"+ColorToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -417,8 +433,8 @@ void UnitTest::assertEquals(string name,string message,float expected,float actu
      }
    else
      {
-      string m=message+": expected is <"+DoubleToString(expected)+
-               "> but <"+DoubleToString(actual)+">";
+      string m=message+": expected <"+DoubleToString(expected)+
+               "> but found <"+DoubleToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -434,8 +450,8 @@ void UnitTest::assertEquals(string name,string message,double expected,double ac
      }
    else
      {
-      string m=message+": expected is <"+DoubleToString(expected)+
-               "> but <"+DoubleToString(actual)+">";
+      string m=message+": expected <"+DoubleToString(expected)+
+               "> but found <"+DoubleToString(actual)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -451,8 +467,8 @@ void UnitTest::assertEquals(string name,string message,string expected,string ac
      }
    else
      {
-      string m=message+": expected is <"+expected+
-               "> but <"+actual+">";
+      string m=message+": expected <"+expected+
+               "> but found <"+actual+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
@@ -469,7 +485,7 @@ bool UnitTest::assertArraySize(string name,string message,int expectedSize,int a
    else
      {
       string m=message+": expected array size is <"+IntegerToString(expectedSize)+
-               "> but <"+IntegerToString(actualSize)+">";
+               "> but found <"+IntegerToString(actualSize)+">";
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
       return false;
@@ -493,7 +509,7 @@ void UnitTest::assertEquals(string name,string message,bool &expected[],bool &ac
       if(expected[i]!=actual[i])
         {
          string m=StringConcatenate(message,": expected array[",IntegerToString(i),"] is <",
-                                    expected[i],"> but <",actual[i],">");
+                                    expected[i],"> but found <",actual[i],">");
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -521,7 +537,7 @@ void UnitTest::assertEquals(string name,string message,char &expected[],char &ac
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   CharToString(expected[i])+
-                  "> but <"+CharToString(actual[i])+">";
+                  "> but found <"+CharToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -549,7 +565,7 @@ void UnitTest::assertEquals(string name,string message,uchar &expected[],uchar &
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   CharToString(expected[i])+
-                  "> but <"+CharToString(actual[i])+">";
+                  "> but found <"+CharToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -577,7 +593,7 @@ void UnitTest::assertEquals(string name,string message,short &expected[],short &
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   IntegerToString(expected[i])+
-                  "> but <"+IntegerToString(actual[i])+">";
+                  "> but found <"+IntegerToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -605,7 +621,7 @@ void UnitTest::assertEquals(string name,string message,ushort &expected[],ushort
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   IntegerToString(expected[i])+
-                  "> but <"+IntegerToString(actual[i])+">";
+                  "> but found <"+IntegerToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -633,7 +649,7 @@ void UnitTest::assertEquals(string name,string message,int &expected[],int &actu
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   IntegerToString(expected[i])+
-                  "> but <"+IntegerToString(actual[i])+">";
+                  "> but found <"+IntegerToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -661,7 +677,7 @@ void UnitTest::assertEquals(string name,string message,uint &expected[],uint &ac
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   IntegerToString(expected[i])+
-                  "> but <"+IntegerToString(actual[i])+">";
+                  "> but found <"+IntegerToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -689,7 +705,7 @@ void UnitTest::assertEquals(string name,string message,long &expected[],long &ac
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   IntegerToString(expected[i])+
-                  "> but <"+IntegerToString(actual[i])+">";
+                  "> but found <"+IntegerToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -717,7 +733,7 @@ void UnitTest::assertEquals(string name,string message,ulong &expected[],ulong &
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   IntegerToString(expected[i])+
-                  "> but <"+IntegerToString(actual[i])+">";
+                  "> but found <"+IntegerToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -745,7 +761,7 @@ void UnitTest::assertEquals(string name,string message,datetime &expected[],date
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   TimeToString(expected[i])+
-                  "> but <"+TimeToString(actual[i])+">";
+                  "> but found <"+TimeToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -773,7 +789,7 @@ void UnitTest::assertEquals(string name,string message,color &expected[],color &
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   ColorToString(expected[i])+
-                  "> but <"+ColorToString(actual[i])+">";
+                  "> but found <"+ColorToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -801,7 +817,7 @@ void UnitTest::assertEquals(string name,string message,float &expected[],float &
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   DoubleToString(expected[i])+
-                  "> but <"+DoubleToString(actual[i])+">";
+                  "> but found <"+DoubleToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -829,7 +845,7 @@ void UnitTest::assertEquals(string name,string message,double &expected[],double
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   DoubleToString(expected[i])+
-                  "> but <"+DoubleToString(actual[i])+">";
+                  "> but found <"+DoubleToString(actual[i])+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
@@ -857,7 +873,7 @@ void UnitTest::assertEquals(string name,string message,string &expected[],string
         {
          string m=message+": expected array["+IntegerToString(i)+"] is <"+
                   expected[i]+
-                  "> but <"+actual[i]+">";
+                  "> but found <"+actual[i]+">";
          setFailure(name,m);
          this.Logger.Error("Test failed: "+name+": "+m);
          return;
