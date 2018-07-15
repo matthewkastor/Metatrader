@@ -1,4 +1,4 @@
-## Schedule
+# Schedule
 
 The Schedule class defines a schedule as beginning at a certain day of the week and time, and running until the ending day of the week and time. There are also tests included in `"Scripts\Tests\Schedule\ScheduleTests.mq4"` that give extensive usage examples and codify the expected behavior of the Schedule.
 
