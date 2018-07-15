@@ -8,13 +8,38 @@
 #property version   "1.00"
 #property strict
 
+#include <UnitTesting\BaseTestSuite.mqh>
 #include <Candles\CandleMetrics.mqh>
 //+------------------------------------------------------------------+
-//| Script program start function                                    |
+//|                                                                  |
 //+------------------------------------------------------------------+
-void OnStart()
+class CandleMetricsTests : BaseTestSuite
   {
-//---
+public:
+   void              RunAllTests();
+   void              BasicMetricsTest1();
+   void              BasicMetricsTest2();
+   void              BasicMetricsTest(string testName,MqlRates &rate,ENUM_TIMEFRAMES tf,double totalHeight,double bodyHeight,
+                                      double upperWickHeight,double lowerWickHeight,double bodyPercent,
+                                      double upperWickPercent,double lowerWickPercent,double width,
+                                      double magnitude,double direction);
+  };
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+CandleMetricsTests::RunAllTests()
+  {
+   BasicMetricsTest1();
+   BasicMetricsTest2();
+   this.unitTest.printSummary();
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+CandleMetricsTests::BasicMetricsTest1()
+  {
+   string testName=__FUNCTION__;
+
    ENUM_TIMEFRAMES tf=PERIOD_H1;
    datetime t=TimeCurrent();
 
@@ -28,83 +53,96 @@ void OnStart()
    rate.real_volume = 22;
    rate.tick_volume = 21;
 
+   double totalHeight= 6.5;
+   double bodyHeight = 5.0;
+   double upperWickHeight = 1.0;
+   double lowerWickHeight = 0.5;
+   double bodyPercent=76.92;
+   double upperWickPercent = 15.38;
+   double lowerWickPercent = 7.69;
+   double width=60.0;
+   double magnitude = 60.20797;
+   double direction = -4.76364;
+
+   this.BasicMetricsTest(testName,rate,tf,totalHeight,bodyHeight,upperWickHeight,
+                         lowerWickHeight,bodyPercent,upperWickPercent,
+                         lowerWickPercent,width,magnitude,direction);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+CandleMetricsTests::BasicMetricsTest2()
+  {
+   string testName=__FUNCTION__;
+
+   ENUM_TIMEFRAMES tf=PERIOD_H1;
+   datetime t=TimeCurrent();
+
+   MqlRates rate;
+   rate.time = t;
+   rate.open = 1.0;
+   rate.close= 6.0;
+   rate.high = 7.0;
+   rate.low=0.5;
+   rate.spread=23;
+   rate.real_volume = 22;
+   rate.tick_volume = 21;
+
+   double totalHeight= 6.5;
+   double bodyHeight = 5.0;
+   double upperWickHeight = 1.0;
+   double lowerWickHeight = 0.5;
+   double bodyPercent=76.92;
+   double upperWickPercent = 15.38;
+   double lowerWickPercent = 7.69;
+   double width=60.0;
+   double magnitude = 60.20797;
+   double direction = 4.76364;
+
+   this.BasicMetricsTest(testName,rate,tf,totalHeight,bodyHeight,upperWickHeight,
+                         lowerWickHeight,bodyPercent,upperWickPercent,
+                         lowerWickPercent,width,magnitude,direction);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+CandleMetricsTests::BasicMetricsTest(string testName,MqlRates &rate,ENUM_TIMEFRAMES tf,double totalHeight,double bodyHeight,
+                                     double upperWickHeight,double lowerWickHeight,double bodyPercent,
+                                     double upperWickPercent,double lowerWickPercent,double width,
+                                     double magnitude,double direction)
+  {
+   this.unitTest.addTest(testName);
+
    CandleMetrics *metric=new CandleMetrics(rate,tf);
-
-   TestEqual(metric.Time, t, "Time");
-   TestEqual(metric.Open, rate.open, "Open");
-   TestEqual(metric.High, rate.high, "High");
-   TestEqual(metric.Low, rate.low, "Low");
-   TestEqual(metric.Close, rate.close, "Close");
-   TestEqual(metric.TickVolume, rate.tick_volume, "TickVolume");
-   TestEqual(metric.Spread, rate.spread, "Spread");
-   TestEqual(metric.RealVolume, rate.real_volume, "RealVolume");
-   TestEqual(metric.TotalHeight, 6.5, "TotalHeight");
-   TestEqual(metric.BodyHeight, 5.0, "BodyHeight");
-   TestEqual(metric.UpperWickHeight, 1.0, "UpperWickHeight");
-   TestEqual(metric.LowerWickHeight, 0.5, "LowerWickHeight");
-   TestEqual(NormalizeDouble(metric.BodyPercent,2), 76.92, "BodyPercent");
-   TestEqual(NormalizeDouble(metric.UpperWickPercent,2), 15.38, "UpperWickPercent");
-   TestEqual(NormalizeDouble(metric.LowerWickPercent,2), 7.69, "LowerWickPercent");
-   TestEqual(metric.Width,60.0,"Width");
-   TestEqual(NormalizeDouble(metric.Magnitude,5), 60.20797, "Magnitude");
-   TestEqual(NormalizeDouble(metric.Direction,5), -4.76364, "Direction");
+   
+   this.unitTest.assertEquals(testName,"Incorrect Time",rate.time,metric.Time);
+   this.unitTest.assertEquals(testName,"Incorrect Open",rate.open,metric.Open);
+   this.unitTest.assertEquals(testName,"Incorrect High",rate.high,metric.High);
+   this.unitTest.assertEquals(testName,"Incorrect Low",rate.low,metric.Low);
+   this.unitTest.assertEquals(testName,"Incorrect Close",rate.close,metric.Close);
+   this.unitTest.assertEquals(testName,"Incorrect TickVolume",rate.tick_volume,metric.TickVolume);
+   this.unitTest.assertEquals(testName,"Incorrect Spread",rate.spread,metric.Spread);
+   this.unitTest.assertEquals(testName,"Incorrect RealVolume",rate.real_volume,metric.RealVolume);
+   this.unitTest.assertEquals(testName,"Incorrect TotalHeight",totalHeight,metric.TotalHeight);
+   this.unitTest.assertEquals(testName,"Incorrect BodyHeight",bodyHeight,metric.BodyHeight);
+   this.unitTest.assertEquals(testName,"Incorrect UpperWickHeight",upperWickHeight,metric.UpperWickHeight);
+   this.unitTest.assertEquals(testName,"Incorrect LowerWickHeight",lowerWickHeight,metric.LowerWickHeight);
+   this.unitTest.assertEquals(testName,"Incorrect BodyPercent",bodyPercent,NormalizeDouble(metric.BodyPercent,2));
+   this.unitTest.assertEquals(testName,"Incorrect UpperWickPercent",upperWickPercent,NormalizeDouble(metric.UpperWickPercent,2));
+   this.unitTest.assertEquals(testName,"Incorrect LowerWickPercent",lowerWickPercent,NormalizeDouble(metric.LowerWickPercent,2));
+   this.unitTest.assertEquals(testName,"Incorrect Width",width,metric.Width);
+   this.unitTest.assertEquals(testName,"Incorrect Magnitude",magnitude,NormalizeDouble(metric.Magnitude,5));
+   this.unitTest.assertEquals(testName,"Incorrect Direction",direction,NormalizeDouble(metric.Direction,5));
    
    delete metric;
-
-   double d=rate.open;
-   rate.open=rate.close;
-   rate.close=d;
-   
-   metric=new CandleMetrics(rate,tf);
-
-   TestEqual(metric.Time, t, "Time");
-   TestEqual(metric.Open, rate.open, "Open");
-   TestEqual(metric.High, rate.high, "High");
-   TestEqual(metric.Low, rate.low, "Low");
-   TestEqual(metric.Close, rate.close, "Close");
-   TestEqual(metric.TickVolume, rate.tick_volume, "TickVolume");
-   TestEqual(metric.Spread, rate.spread, "Spread");
-   TestEqual(metric.RealVolume, rate.real_volume, "RealVolume");
-   TestEqual(metric.TotalHeight, 6.5, "TotalHeight");
-   TestEqual(metric.BodyHeight, 5.0, "BodyHeight");
-   TestEqual(metric.UpperWickHeight, 1.0, "UpperWickHeight");
-   TestEqual(metric.LowerWickHeight, 0.5, "LowerWickHeight");
-   TestEqual(NormalizeDouble(metric.BodyPercent,2), 76.92, "BodyPercent");
-   TestEqual(NormalizeDouble(metric.UpperWickPercent,2), 15.38, "UpperWickPercent");
-   TestEqual(NormalizeDouble(metric.LowerWickPercent,2), 7.69, "LowerWickPercent");
-   TestEqual(metric.Width,60.0,"Width");
-   TestEqual(NormalizeDouble(metric.Magnitude,5), 60.20797, "Magnitude");
-   TestEqual(NormalizeDouble(metric.Direction,5), 4.76364, "Direction");
-   
-   delete metric;
-   Comment("Check the experts tab for failure messages");
   }
 //+------------------------------------------------------------------+
-//|                                                                  |
+//| Script program start function                                    |
 //+------------------------------------------------------------------+
-void TestEqual(datetime actual,datetime expected,string whatFailed)
+void OnStart()
   {
-   if(expected!=actual) PrintFormat("Fail : %s expected %s but was %s",whatFailed,expected,actual);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void TestEqual(double actual,double expected,string whatFailed)
-  {
-   if(expected!=actual) PrintFormat("Fail : %s expected %f but was %f",whatFailed,expected,actual);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void TestEqual(long actual,long expected,string whatFailed)
-  {
-   if(expected!=actual) PrintFormat("Fail : %s expected %f but was %f",whatFailed,expected,actual);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void TestEqual(int actual,int expected,string whatFailed)
-  {
-   if(expected!=actual) PrintFormat("Fail : %d expected %f but was %f",whatFailed,expected,actual);
+   CandleMetricsTests *tests=new CandleMetricsTests();
+   tests.RunAllTests();
+   delete tests;
   }
 //+------------------------------------------------------------------+
