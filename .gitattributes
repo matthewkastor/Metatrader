@@ -21,3 +21,4 @@
 *.rtf	 diff=astextplain
 *.RTF	 diff=astextplain
 *.mq4	 diff=astextplain
+*.mqh	 diff=astextplain
