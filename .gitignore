@@ -1,3 +1,6 @@
 *.*
 !*.mq4
 !*.mqh
+!*.md
+!.gitignore
+!.gitattributes
