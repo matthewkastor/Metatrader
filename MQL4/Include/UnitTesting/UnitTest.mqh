@@ -8,13 +8,10 @@
 #property version   "1.00"
 #property strict
 
-//based on GPL3 licensed work by micclly
-//#property copyright "Copyright 2014, micclly."
-//#property link      "https://github.com/micclly"
-
 #include <Arrays/List.mqh>
 #include <UnitTesting\UnitTestData.mqh>
 #include <Common\BaseLogger.mqh>
+#include <Common\Comparators.mqh>
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
@@ -28,40 +25,20 @@ public:
                      UnitTest(BaseLogger *logger);
                     ~UnitTest();
 
+   Comparators       compare;
    void              addTest(string name);
    void              setSuccess(string name);
    void              setFailure(string name,string message);
    void              printSummary();
 
-   void              assertEquals(string name,string message,bool expected,bool actual);
-   void              assertEquals(string name,string message,char expected,char actual);
-   void              assertEquals(string name,string message,uchar expected,uchar actual);
-   void              assertEquals(string name,string message,short expected,short actual);
-   void              assertEquals(string name,string message,ushort expected,ushort actual);
-   void              assertEquals(string name,string message,int expected,int actual);
-   void              assertEquals(string name,string message,uint expected,uint actual);
-   void              assertEquals(string name,string message,long expected,long actual);
-   void              assertEquals(string name,string message,ulong expected,ulong actual);
-   void              assertEquals(string name,string message,datetime expected,datetime actual);
-   void              assertEquals(string name,string message,color expected,color actual);
-   void              assertEquals(string name,string message,float expected,float actual);
-   void              assertEquals(string name,string message,double expected,double actual);
-   void              assertEquals(string name,string message,string expected,string actual);
+   template<typename T>
+   bool              assertEquals(string name,string message,T expected,T actual);
 
-   void              assertEquals(string name,string message,bool &expected[],bool &actual[]);
-   void              assertEquals(string name,string message,char &expected[],char &actual[]);
-   void              assertEquals(string name,string message,uchar &expected[],uchar &actual[]);
-   void              assertEquals(string name,string message,short &expected[],short &actual[]);
-   void              assertEquals(string name,string message,ushort &expected[],ushort &actual[]);
-   void              assertEquals(string name,string message,int &expected[],int &actual[]);
-   void              assertEquals(string name,string message,uint &expected[],uint &actual[]);
-   void              assertEquals(string name,string message,long &expected[],long &actual[]);
-   void              assertEquals(string name,string message,ulong &expected[],ulong &actual[]);
-   void              assertEquals(string name,string message,datetime &expected[],datetime &actual[]);
-   void              assertEquals(string name,string message,color &expected[],color &actual[]);
-   void              assertEquals(string name,string message,float &expected[],float &actual[]);
-   void              assertEquals(string name,string message,double &expected[],double &actual[]);
-   void              assertEquals(string name,string message,string &expected[],string &actual[]);
+   template<typename T>
+   bool              assertEquals(string name,string message,T &expected[],T &actual[]);
+
+   template<typename T>
+   bool              assertTrue(string name,string message,T actual);
 
    void              fail(string name,string message);
 
@@ -156,6 +133,11 @@ UnitTestData *UnitTest::findTest(string name)
 void UnitTest::setSuccess(string name)
   {
    UnitTestData *test=findTest(name);
+   if(test==NULL)
+     {
+      addTest(name);
+     }
+   test=findTest(name);
 
    if(test!=NULL)
      {
@@ -175,12 +157,17 @@ void UnitTest::setSuccess(string name)
 void UnitTest::setFailure(string name,string message)
   {
    UnitTestData *test=findTest(name);
+   if(test==NULL)
+     {
+      addTest(name);
+     }
+   test=findTest(name);
 
    if(test!=NULL)
      {
       m_failureAssertionCount+=1;
       test.m_result=false;
-      test.m_message=StringConcatenate(test.m_message, message);
+      test.m_message=StringConcatenate(test.m_message,message);
       test.m_asserted=true;
      }
   }
@@ -207,13 +194,29 @@ void UnitTest::printSummary(void)
         }
      }
 
-   double successPercent= 100.0 * m_successTestCount/m_allTestCount;
-   double failurePrcent = 100.0 * m_failureTestCount/m_allTestCount;
+   double successPercent=0;
+   if(m_allTestCount!=0)
+     {
+      successPercent=100.0 *((double)m_successTestCount/(double)m_allTestCount);
+     }
+   double failurePrcent=0;
+   if(m_allTestCount!=0)
+     {
+      failurePrcent=100.0 *((double)m_failureTestCount/(double)m_allTestCount);
+     }
 
    int totalAssertions=m_successAssertionCount+m_failureAssertionCount;
-   double assertSuccessPercent= 100.0 * m_successAssertionCount/totalAssertions;
-   double assertFailurePrcent = 100.0 * m_failureAssertionCount/totalAssertions;
-   
+   double assertSuccessPercent=0;
+   if(totalAssertions!=0)
+     {
+      assertSuccessPercent=100.0 *((double)m_successAssertionCount/(double)totalAssertions);
+     }
+   double assertFailurePrcent=0;
+   if(totalAssertions!=0)
+     {
+      assertFailurePrcent=100.0 *((double)m_failureAssertionCount/(double)totalAssertions);
+     }
+
    this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Tests Run : %d",m_allTestCount));
 
    this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Assertions Run : %d",totalAssertions));
@@ -239,648 +242,73 @@ void UnitTest::printSummary(void)
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,bool expected,bool actual)
+template<typename T>
+bool UnitTest::assertEquals(string name,string message,T expected,T actual)
   {
-   if(expected==actual)
+   bool out=compare.IsEqualTo(expected,actual);
+   if(out)
      {
       setSuccess(name);
      }
    else
      {
-      string m=StringConcatenate(message,": expected <",expected,"> but found <",actual,">");
+      string m=StringConcatenate(message,": expected <",((string)expected),"> but found <",((string)actual),">");
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
+   return out;
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,char expected,char actual)
+template<typename T>
+bool UnitTest::assertTrue(string name,string message,T actual)
   {
-   if(expected==actual)
+   bool expected=true;
+   bool out=compare.IsEqualTo(expected,actual);
+   if(out)
      {
       setSuccess(name);
      }
    else
      {
-      string m=message+": expected <"+CharToString(expected)+
-               "> but found <"+CharToString(actual)+">";
+      string m=StringConcatenate(message,": expected <",((string)expected),"> but found <",((string)actual),">");
       setFailure(name,m);
       this.Logger.Error("Test failed: "+name+": "+m);
      }
+   return out;
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,uchar expected,uchar actual)
+template<typename T>
+bool UnitTest::assertEquals(string name,string message,T &expected[],T &actual[])
   {
-   if(expected==actual)
+   int expectedSize=ArraySize(expected);
+   int actualSize=ArraySize(actual);
+   bool out=compare.IsEqualTo(expectedSize,actualSize);
+   if(!(out))
      {
+      string m=message+": expected array size is <"+((string)expectedSize)+
+               "> but found <"+((string)actualSize)+">";
+      setFailure(name,m);
+      this.Logger.Error("Test failed: "+name+": "+m);
+     }
+   else
+     {
+      for(int i=0; i<actualSize; i++)
+        {
+         if(expected[i]!=actual[i])
+           {
+            string m=StringConcatenate(message,": expected array[",((string)i),"] is <",
+                                       ((string)expected[i]),"> but found <",((string)actual[i]),">");
+            setFailure(name,m);
+            this.Logger.Error("Test failed: "+name+": "+m);
+            return;
+           }
+        }
       setSuccess(name);
      }
-   else
-     {
-      string m=message+": expected <"+CharToString(expected)+
-               "> but found <"+CharToString(actual)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,short expected,short actual)
-  {
-   if(expected==actual)
-     {
-      setSuccess(name);
-     }
-   else
-     {
-      string m=message+": expected <"+IntegerToString(expected)+
-               "> but found <"+IntegerToString(actual)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,ushort expected,ushort actual)
-  {
-   if(expected==actual)
-     {
-      setSuccess(name);
-     }
-   else
-     {
-      string m=message+": expected <"+IntegerToString(expected)+
-               "> but found <"+IntegerToString(actual)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,int expected,int actual)
-  {
-   if(expected==actual)
-     {
-      setSuccess(name);
-     }
-   else
-     {
-      string m=message+": expected <"+IntegerToString(expected)+
-               "> but found <"+IntegerToString(actual)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,uint expected,uint actual)
-  {
-   if(expected==actual)
-     {
-      setSuccess(name);
-     }
-   else
-     {
-      string m=message+": expected <"+IntegerToString(expected)+
-               "> but found <"+IntegerToString(actual)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,long expected,long actual)
-  {
-   if(expected==actual)
-     {
-      setSuccess(name);
-     }
-   else
-     {
-      string m=message+": expected <"+IntegerToString(expected)+
-               "> but found <"+IntegerToString(actual)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,ulong expected,ulong actual)
-  {
-   if(expected==actual)
-     {
-      setSuccess(name);
-     }
-   else
-     {
-      string m=message+": expected <"+IntegerToString(expected)+
-               "> but found <"+IntegerToString(actual)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,datetime expected,datetime actual)
-  {
-   if(expected==actual)
-     {
-      setSuccess(name);
-     }
-   else
-     {
-      string m=message+": expected <"+TimeToString(expected)+
-               "> but found <"+TimeToString(actual)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,color expected,color actual)
-  {
-   if(expected==actual)
-     {
-      setSuccess(name);
-     }
-   else
-     {
-      string m=message+": expected <"+ColorToString(expected)+
-               "> but found <"+ColorToString(actual)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,float expected,float actual)
-  {
-   if(expected==actual)
-     {
-      setSuccess(name);
-     }
-   else
-     {
-      string m=message+": expected <"+DoubleToString(expected)+
-               "> but found <"+DoubleToString(actual)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,double expected,double actual)
-  {
-   if(expected==actual)
-     {
-      setSuccess(name);
-     }
-   else
-     {
-      string m=message+": expected <"+DoubleToString(expected)+
-               "> but found <"+DoubleToString(actual)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,string expected,string actual)
-  {
-   if(expected==actual)
-     {
-      setSuccess(name);
-     }
-   else
-     {
-      string m=message+": expected <"+expected+
-               "> but found <"+actual+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-bool UnitTest::assertArraySize(string name,string message,int expectedSize,int actualSize)
-  {
-   if(expectedSize==actualSize)
-     {
-      return true;
-     }
-   else
-     {
-      string m=message+": expected array size is <"+IntegerToString(expectedSize)+
-               "> but found <"+IntegerToString(actualSize)+">";
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-      return false;
-     }
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,bool &expected[],bool &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=StringConcatenate(message,": expected array[",IntegerToString(i),"] is <",
-                                    expected[i],"> but found <",actual[i],">");
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,char &expected[],char &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  CharToString(expected[i])+
-                  "> but found <"+CharToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,uchar &expected[],uchar &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  CharToString(expected[i])+
-                  "> but found <"+CharToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,short &expected[],short &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  IntegerToString(expected[i])+
-                  "> but found <"+IntegerToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,ushort &expected[],ushort &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  IntegerToString(expected[i])+
-                  "> but found <"+IntegerToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,int &expected[],int &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  IntegerToString(expected[i])+
-                  "> but found <"+IntegerToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,uint &expected[],uint &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  IntegerToString(expected[i])+
-                  "> but found <"+IntegerToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,long &expected[],long &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  IntegerToString(expected[i])+
-                  "> but found <"+IntegerToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,ulong &expected[],ulong &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  IntegerToString(expected[i])+
-                  "> but found <"+IntegerToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,datetime &expected[],datetime &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  TimeToString(expected[i])+
-                  "> but found <"+TimeToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,color &expected[],color &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  ColorToString(expected[i])+
-                  "> but found <"+ColorToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,float &expected[],float &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  DoubleToString(expected[i])+
-                  "> but found <"+DoubleToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,double &expected[],double &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  DoubleToString(expected[i])+
-                  "> but found <"+DoubleToString(actual[i])+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-void UnitTest::assertEquals(string name,string message,string &expected[],string &actual[])
-  {
-   int expectedSize=ArraySize(expected);
-   int actualSize=ArraySize(actual);
-
-   if(!assertArraySize(name,message,expectedSize,actualSize))
-     {
-      return;
-     }
-
-   for(int i=0; i<actualSize; i++)
-     {
-      if(expected[i]!=actual[i])
-        {
-         string m=message+": expected array["+IntegerToString(i)+"] is <"+
-                  expected[i]+
-                  "> but found <"+actual[i]+">";
-         setFailure(name,m);
-         this.Logger.Error("Test failed: "+name+": "+m);
-         return;
-        }
-     }
-
-   setSuccess(name);
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
