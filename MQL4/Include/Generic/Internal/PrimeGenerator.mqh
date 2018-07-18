@@ -48,17 +48,18 @@ bool CPrimeGenerator::IsPrime(const int candidate)
 //+------------------------------------------------------------------+
 int CPrimeGenerator::GetPrime(const int min)
   {
+  int i;
 //--- a typical resize algorithm would pick the smallest prime number in this array
 //--- that is larger than twice the previous capacity. 
 //--- get next prime value from table
-   for(int i=0; i<ArraySize(s_primes); i++)
+   for(i=0; i<ArraySize(s_primes); i++)
      {
       int prime=s_primes[i];
       if(prime>=min)
          return(prime);
      }
 //--- outside of our predefined table
-   for(int i=(min|1); i<=INT_MAX;i+=2)
+   for(i=(min|1); i<=INT_MAX;i+=2)
      {
       if(IsPrime(i) && ((i-1)%s_hash_prime!=0))
          return(i);
