@@ -32,7 +32,7 @@ public:
    static bool If_P_And_Q(bool p,bool q) { return F_0001(p,q); }
    static bool And(bool p,bool q) { return If_P_And_Q(p,q); }
    // 0010
-   static bool F_0010(bool p,bool q) { return And(p, Not(q)); }
+   static bool F_0010(bool p,bool q) { return And(p,Not(q)); }
    static bool If_P_And_NotQ(bool p,bool q) { return F_0010(p,q); }
    static bool NonImplication(bool p,bool q) { return If_P_And_NotQ(p,q); }
    // 0011
@@ -41,7 +41,7 @@ public:
    static bool P(bool p,bool q) { return If_P(p,q); }
    static bool ProjectP(bool p,bool q) { return P(p,q); }
    // 0100
-   static bool F_0100(bool p,bool q) { return And(Not(p), q); }
+   static bool F_0100(bool p,bool q) { return And(Not(p),q); }
    static bool If_NotP_And_Q(bool p,bool q) { return F_0100(p,q); }
    static bool ConverseNonImplication(bool p,bool q) { return If_NotP_And_Q(p,q); }
    // 0101
@@ -50,7 +50,7 @@ public:
    static bool Q(bool p,bool q) { return If_Q(p,q); }
    static bool ProjectQ(bool p,bool q) { return Q(p,q); }
    // 0110
-   static bool F_0110(bool p,bool q) { return And(Or(p,q), Not(And(p,q))); }
+   static bool F_0110(bool p,bool q) { return And(Or(p,q),Not(And(p,q))); }
    static bool If_P_NotEqualTo_Q(bool p,bool q) { return F_0110(p,q); }
    static bool Xor(bool p,bool q) { return If_P_NotEqualTo_Q(p,q); }
    // 0111
@@ -93,9 +93,17 @@ public:
    template<typename T>
    static bool       IsGreaterThanOrEqualTo(T a,T b);
    template<typename T>
+   static bool       IsNotBelow(T a,T b);
+   template<typename T>
    static bool       IsLessThan(T a,T b);
    template<typename T>
    static bool       IsLessThanOrEqualTo(T a,T b);
+   template<typename T>
+   static bool       IsNotAbove(T a,T b);
+   template<typename T>
+   static bool       IsBetween(T a,T b,T c);
+   template<typename T>
+   static bool       IsNotBetween(T a,T b,T c);
   };
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -125,6 +133,14 @@ bool Comparators::IsGreaterThanOrEqualTo(T greater,T lesser)
 //|                                                                  |
 //+------------------------------------------------------------------+
 template<typename T>
+bool       Comparators::IsNotBelow(T val,T minimumVal)
+  {
+   return IsGreaterThanOrEqualTo(val,minimumVal);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+template<typename T>
 bool Comparators::IsLessThan(T lesser,T greater)
   {
    return Comparators::IsGreaterThan(greater,lesser);
@@ -136,5 +152,31 @@ template<typename T>
 bool Comparators::IsLessThanOrEqualTo(T lesser,T greater)
   {
    return Comparators::IsGreaterThanOrEqualTo(greater,lesser);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+template<typename T>
+bool       Comparators::IsNotAbove(T val,T maximumVal)
+  {
+   return IsLessThanOrEqualTo(val,maximumVal);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+template<typename T>
+bool Comparators::IsBetween(T val,T minimum,T maximum)
+  {
+   bool p = Comparators::IsNotBelow(val, minimum);
+   bool q = Comparators::IsNotAbove(val, maximum);
+   return Comparators::And(p,q);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+template<typename T>
+bool Comparators::IsNotBetween(T val,T minimum,T maximum)
+  {
+   return Comparators::Not(Comparators::IsBetween(val,minimum,maximum));
   }
 //+------------------------------------------------------------------+
