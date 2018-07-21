@@ -37,8 +37,8 @@ public:
    template<typename T>
    bool              assertEquals(string name,string message,T &expected[],T &actual[]);
 
-   template<typename T>
-   bool              assertTrue(string name,string message,T actual);
+   bool              assertTrue(string name,string message,bool actual);
+   bool              assertFalse(string name,string message,bool actual);
 
    void              fail(string name,string message);
 
@@ -261,22 +261,16 @@ bool UnitTest::assertEquals(string name,string message,T expected,T actual)
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-template<typename T>
-bool UnitTest::assertTrue(string name,string message,T actual)
+bool UnitTest::assertTrue(string name,string message,bool actual)
   {
-   bool expected=true;
-   bool out=compare.IsEqualTo(expected,actual);
-   if(out)
-     {
-      setSuccess(name);
+   return this.assertEquals(name,message,true,actual);
      }
-   else
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+bool UnitTest::assertFalse(string name,string message,bool actual)
      {
-      string m=StringConcatenate(message,": expected <",((string)expected),"> but found <",((string)actual),">");
-      setFailure(name,m);
-      this.Logger.Error("Test failed: "+name+": "+m);
-     }
-   return out;
+   return this.assertEquals(name,message,false,actual);
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
