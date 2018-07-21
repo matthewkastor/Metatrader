@@ -8,51 +8,163 @@
 #property version   "1.00"
 #property strict
 
+#include <UnitTesting\BaseTestSuite.mqh>
+#include <Generic\LinkedList.mqh>
 #include <Schedule\ScheduleSet.mqh>
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+class ScheduleSetTests : BaseTestSuite
+  {
+private:
+   ScheduleSet      *s;
+   void              AssertShouldBeInSchedule(string name,datetime time);
+   void              AssertShouldBeInSchedule(string name,CLinkedList<datetime>*time);
+   void              AssertShouldNotBeInSchedule(string name,datetime time);
+   void              AssertShouldNotBeInSchedule(string name,CLinkedList<datetime>*time);
+public:
+   void              ScheduleSetTests();
+   void             ~ScheduleSetTests();
+   void              BasicTests();
+   void              RunAllTests();
+  };
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void ScheduleSetTests::ScheduleSetTests()
+  {
+   this.s=new ScheduleSet();
+   this.s.Name="Test Schedule";
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void ScheduleSetTests::~ScheduleSetTests()
+  {
+   delete s;
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void ScheduleSetTests::AssertShouldBeInSchedule(string name,datetime time)
+  {
+   string message=StringConcatenate(s.ToString()," includes ",time);
+   bool actual=s.IsActive(time);
+   this.unitTest.assertTrue(name,message,actual);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void ScheduleSetTests::AssertShouldBeInSchedule(string name,CLinkedList<datetime>*time)
+  {
+   int sz=time.Count();
+   CLinkedListNode<datetime>*node=time.First();
+   AssertShouldBeInSchedule(name,node.Value());
+
+   while(node!=time.Last())
+     {
+      node=node.Next();
+      AssertShouldBeInSchedule(name,node.Value());
+     }
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void ScheduleSetTests::AssertShouldNotBeInSchedule(string name,datetime time)
+  {
+   string message=StringConcatenate(s.ToString()," includes ",time);
+   bool actual=s.IsActive(time);
+   this.unitTest.assertFalse(name,message,actual);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void ScheduleSetTests::AssertShouldNotBeInSchedule(string name,CLinkedList<datetime>*time)
+  {
+   int sz=time.Count();
+   CLinkedListNode<datetime>*node=time.First();
+   AssertShouldNotBeInSchedule(name,node.Value());
+
+   while(node!=time.Last())
+     {
+      node=node.Next();
+      AssertShouldNotBeInSchedule(name,node.Value());
+     }
+  }
+//+------------------------------------------------------------------+
+//| Script program start function                                    |
+//+------------------------------------------------------------------+
+void ScheduleSetTests::BasicTests()
+  {
+   string name=__FUNCTION__;
+   CLinkedList<datetime>*shouldBe=new CLinkedList<datetime>();
+   CLinkedList<datetime>*shouldNotBe=new CLinkedList<datetime>();
+
+   ENUM_DAY_OF_WEEK day=MONDAY;
+   string startTime="08:00";
+   string endTime="17:00";
+   string lateHoursEnd="20:00";
+
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.15 ",startTime))); // sunday should always be off.
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.15 ",endTime)));// sunday should always be off.
+
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.16 ",startTime))); // monday start of day.
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.16 ",endTime))); // monday after hours.
+
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.17 ",startTime))); // tuesday start of day.
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.17 ",endTime))); // tuesday after hours.
+
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.18 ",startTime))); // wednesday start of day.
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.18 ",endTime))); // wednesday after normal hours.
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.18 ",lateHoursEnd))); // wednesday after late hours.
+
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.19 ",startTime))); // thursday start of day.
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.19 ",endTime))); // thursday after hours.
+
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.20 ",startTime))); // friday start of day.
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.20 ",endTime))); // friday after hours.
+
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.21 ",startTime))); // saturday should always be off.
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.21 ",endTime)));// saturday should always be off.
+
+   int c;
+   int scheduleSetSize=52; // lots of schedules to search through.
+   for(c=0;c<(scheduleSetSize);c++)
+     {
+      day=MONDAY;
+      this.s.Add(new Schedule(day,startTime,day,endTime));
+      day=TUESDAY;
+      this.s.Add(new Schedule(day,startTime,day,endTime));
+      day=WEDNESDAY;
+      this.s.Add(new Schedule(day,startTime,day,endTime));
+      day=THURSDAY;
+      this.s.Add(new Schedule(day,startTime,day,endTime));
+      day=FRIDAY;
+      this.s.Add(new Schedule(day,startTime,day,endTime));
+     }
+     
+   day=WEDNESDAY;
+   // on wednesday there are extended hours.
+   this.s.Add(new Schedule(day,endTime,day,lateHoursEnd));
+
+   this.AssertShouldBeInSchedule(name,shouldBe);
+   this.AssertShouldNotBeInSchedule(name,shouldNotBe);
+
+   delete shouldBe;
+   delete shouldNotBe;
+  }
+void ScheduleSetTests::RunAllTests()
+{
+   this.BasicTests();
+   this.unitTest.printSummary();
+}
 //+------------------------------------------------------------------+
 //| Script program start function                                    |
 //+------------------------------------------------------------------+
 void OnStart()
   {
-   ENUM_DAY_OF_WEEK day=MONDAY;
-   string startTime="08:00";
-   string endTime="17:00";
-   string onTime=startTime;
-   string offTime="17:01";
-
-   datetime sun_not_on=StrToTime(StringConcatenate("2018.07.15 ",onTime));
-   datetime sun_off=StrToTime(StringConcatenate("2018.07.15 ",offTime));
-
-   datetime fri_on=StrToTime(StringConcatenate("2018.07.20 ",onTime));
-   datetime fri_off=StrToTime(StringConcatenate("2018.07.20 ",offTime));
-
-   ScheduleSet *s=new ScheduleSet();
-// adding 260 start and stop times to profile with (5 * 52)
-   int c;
-   for(c=0;c<(52);c++)
-     {
-      day=MONDAY;
-      s.Add(new Schedule(day,startTime,day,endTime));
-      day=TUESDAY;
-      s.Add(new Schedule(day,startTime,day,endTime));
-      day=WEDNESDAY;
-      s.Add(new Schedule(day,startTime,day,endTime));
-      day=THURSDAY;
-      s.Add(new Schedule(day,startTime,day,endTime));
-      day=FRIDAY;
-      s.Add(new Schedule(day,startTime,day,endTime));
-     }
-
-   bool a1 = s.IsActive(sun_not_on);
-   bool a2 = s.IsActive(sun_off);
-   bool a3 = s.IsActive(fri_on);
-   bool a4 = s.IsActive(fri_off);
-
-   Print(a1 ? "Fail : sun_not_on" : "Pass : sun_not_on");
-   Print(a2 ? "Fail : sun_off" : "Pass : sun_off");
-   Print(a3 ? "Pass : fri_on" : "Fail : fri_on");
-   Print(a4 ? "Fail : fri_off" : "Pass : fri_off");
-
-   delete s;
+   ScheduleSetTests *tests=new ScheduleSetTests();
+   tests.RunAllTests();
+   delete tests;
   }
 //+------------------------------------------------------------------+
