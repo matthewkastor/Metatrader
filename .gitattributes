@@ -4,6 +4,8 @@
 #for metatrader files
 *.mq4	 diff=astextplain
 *.mqh	 diff=astextplain
+*.mq4 linguist-language=MQL4
+*.mqh linguist-language=MQL4
 
 # Custom for Visual Studio
 *.cs     diff=csharp
