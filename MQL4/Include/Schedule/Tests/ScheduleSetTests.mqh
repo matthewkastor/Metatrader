@@ -25,7 +25,8 @@ private:
 public:
    void              ScheduleSetTests();
    void             ~ScheduleSetTests();
-   void              BasicTests();
+   void              BasicTests(int scheduleSetSize=1);
+   void              CanAddWeeklySchedule();
    void              RunAllTests();
   };
 //+------------------------------------------------------------------+
@@ -96,11 +97,12 @@ void ScheduleSetTests::AssertShouldNotBeInSchedule(string name,CLinkedList<datet
 //+------------------------------------------------------------------+
 //| Script program start function                                    |
 //+------------------------------------------------------------------+
-void ScheduleSetTests::BasicTests()
+void ScheduleSetTests::BasicTests(int scheduleSetSize=1)
   {
-   string name=__FUNCTION__;
+   string name=StringConcatenate(__FUNCTION__, "(", (string)scheduleSetSize, ")");
    CLinkedList<datetime>*shouldBe=new CLinkedList<datetime>();
    CLinkedList<datetime>*shouldNotBe=new CLinkedList<datetime>();
+   this.s.Clear();
 
    ENUM_DAY_OF_WEEK day=MONDAY;
    string startTime="08:00";
@@ -130,7 +132,6 @@ void ScheduleSetTests::BasicTests()
    shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.21 ",endTime)));// saturday should always be off.
 
    int c;
-   int scheduleSetSize=52; // lots of schedules to search through.
    for(c=0;c<(scheduleSetSize);c++)
      {
       day=MONDAY;
@@ -156,10 +157,61 @@ void ScheduleSetTests::BasicTests()
    delete shouldNotBe;
   }
 //+------------------------------------------------------------------+
+//| Script program start function                                    |
+//+------------------------------------------------------------------+
+void ScheduleSetTests::CanAddWeeklySchedule()
+  {
+   string name=__FUNCTION__;
+   CLinkedList<datetime>*shouldBe=new CLinkedList<datetime>();
+   CLinkedList<datetime>*shouldNotBe=new CLinkedList<datetime>();
+   this.s.Clear();
+
+   string startTime="08:00";
+   string mid="12:00";
+   string endTime="17:00";
+
+   // sunday
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.15 ",startTime)));
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.15 ",endTime)));
+   // monday
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.16 ",startTime)));
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.16 ",endTime)));
+   // tuesday
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.17 ",startTime))); 
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.17 ",mid))); 
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.17 ",endTime)));
+   // wednesday
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.18 ",startTime))); 
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.18 ",mid))); 
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.18 ",endTime)));
+   // thursday
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.19 ",startTime))); 
+   shouldBe.Add(StrToTime(StringConcatenate("2018.07.19 ",mid))); 
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.19 ",endTime)));
+   // friday
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.20 ",startTime))); 
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.20 ",endTime)));
+   // saturday
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.21 ",startTime))); 
+   shouldNotBe.Add(StrToTime(StringConcatenate("2018.07.21 ",endTime)));
+
+   this.s.AddWeek(startTime,endTime,TUESDAY,THURSDAY);
+   
+   Print(this.s.ToString());
+
+   this.AssertShouldBeInSchedule(name,shouldBe);
+   this.AssertShouldNotBeInSchedule(name,shouldNotBe);
+
+   delete shouldBe;
+   delete shouldNotBe;
+  }
+//+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
 void ScheduleSetTests::RunAllTests()
   {
-   this.BasicTests();
+   this.BasicTests(1);
+   this.BasicTests(1000);
+   this.CanAddWeeklySchedule();
   }
 //+------------------------------------------------------------------+
