@@ -51,7 +51,7 @@ void ScheduleSetTests::~ScheduleSetTests()
 //+------------------------------------------------------------------+
 void ScheduleSetTests::AssertShouldBeInSchedule(string name,datetime time)
   {
-   string message=StringConcatenate(s.ToString()," includes ",time);
+   string message=StringConcatenate(s.ToString()," includes ",EnumToString((ENUM_DAY_OF_WEEK)TimeDayOfWeek(time))," ",time);
    bool actual=s.IsActive(time);
    this.unitTest.assertTrue(name,message,actual);
   }
@@ -75,7 +75,7 @@ void ScheduleSetTests::AssertShouldBeInSchedule(string name,CLinkedList<datetime
 //+------------------------------------------------------------------+
 void ScheduleSetTests::AssertShouldNotBeInSchedule(string name,datetime time)
   {
-   string message=StringConcatenate(s.ToString()," includes ",time);
+   string message=StringConcatenate(s.ToString()," includes ",EnumToString((ENUM_DAY_OF_WEEK)TimeDayOfWeek(time))," ",time);
    bool actual=s.IsActive(time);
    this.unitTest.assertFalse(name,message,actual);
   }
