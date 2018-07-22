@@ -25,8 +25,8 @@ void OnStart()
    tss.Add(new ComparatorsTests());
    tss.Add(new CandleMetricsTests());
    tss.Add(new SimpleParsersTests());
-   tss.Add(new ScheduleSetTests());
    tss.Add(new ScheduleTests());
+   tss.Add(new ScheduleSetTests());
    tss.RunAllTests();
    delete tss;
   }
