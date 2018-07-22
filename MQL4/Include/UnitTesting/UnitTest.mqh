@@ -10,6 +10,7 @@
 
 #include <Arrays/List.mqh>
 #include <UnitTesting\UnitTestData.mqh>
+#include <UnitTesting\UnitTestStats.mqh>
 #include <Common\BaseLogger.mqh>
 #include <Common\Comparators.mqh>
 //+------------------------------------------------------------------+
@@ -21,7 +22,8 @@ private:
    BaseLogger       *Logger;
    bool              deleteLogger;
 public:
-                     UnitTest();
+   string            Name;
+   UnitTestStats    *Stats;
                      UnitTest(BaseLogger *logger);
                     ~UnitTest();
 
@@ -29,6 +31,8 @@ public:
    void              addTest(string name);
    void              setSuccess(string name);
    void              setFailure(string name,string message);
+   void              calculateStats();
+   void              printDetail();
    void              printSummary();
 
    template<typename T>
@@ -43,11 +47,6 @@ public:
    void              fail(string name,string message);
 
 private:
-   int               m_allTestCount;
-   int               m_successTestCount;
-   int               m_failureTestCount;
-   int               m_successAssertionCount;
-   int               m_failureAssertionCount;
    CList             m_testList;
 
    UnitTestData     *findTest(string name);
@@ -58,26 +57,28 @@ private:
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-UnitTest::UnitTest()
-   : m_testList(),m_allTestCount(0),m_successTestCount(0)
+UnitTest::UnitTest(BaseLogger *aLogger=NULL)
   {
-   this.Logger=new BaseLogger();
-   this.deleteLogger=true;
-  }
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-UnitTest::UnitTest(BaseLogger *logger)
-   : m_testList(),m_allTestCount(0),m_successTestCount(0)
-  {
-   this.Logger=logger;
-   this.deleteLogger=false;
+   this.Name="UnitTest";
+   this.Stats=new UnitTestStats(aLogger);
+   this.calculateStats();
+   if(aLogger==NULL)
+     {
+      this.Logger=new BaseLogger();
+      this.deleteLogger=true;
+     }
+   else
+     {
+      this.Logger=aLogger;
+      this.deleteLogger=false;
+     }
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
 UnitTest::~UnitTest(void)
   {
+   delete this.Stats;
    clearTestList();
    if(this.deleteLogger==true)
      {
@@ -96,7 +97,6 @@ void UnitTest::addTest(string name)
      }
 
    m_testList.Add(new UnitTestData(name));
-   m_allTestCount+=1;
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -132,16 +132,16 @@ UnitTestData *UnitTest::findTest(string name)
 //+------------------------------------------------------------------+
 void UnitTest::setSuccess(string name)
   {
+   this.Stats.SuccessAssertionCount+=1;
    UnitTestData *test=findTest(name);
    if(test==NULL)
      {
       addTest(name);
+      test=findTest(name);
      }
-   test=findTest(name);
 
    if(test!=NULL)
      {
-      m_successAssertionCount+=1;
       if(test.m_asserted)
         {
          return;
@@ -156,16 +156,16 @@ void UnitTest::setSuccess(string name)
 //+------------------------------------------------------------------+
 void UnitTest::setFailure(string name,string message)
   {
+   this.Stats.FailureAssertionCount+=1;
    UnitTestData *test=findTest(name);
    if(test==NULL)
      {
       addTest(name);
+      test=findTest(name);
      }
-   test=findTest(name);
 
    if(test!=NULL)
      {
-      m_failureAssertionCount+=1;
       test.m_result=false;
       test.m_message=StringConcatenate(test.m_message,message);
       test.m_asserted=true;
@@ -174,70 +174,57 @@ void UnitTest::setFailure(string name,string message)
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
-void UnitTest::printSummary(void)
+void UnitTest::calculateStats()
   {
    UnitTestData *data;
-
-   this.Logger.Log("UnitTest : Results Summary : Start");
+   int success=0,failure=0;
 
    for(data=m_testList.GetLastNode(); data!=NULL; data=m_testList.GetPrevNode())
      {
       if(data.m_result)
         {
-         m_successTestCount+=1;
+         success+=1;
+        }
+      else
+        {
+         failure+=1;
+        }
+     }
+     
+   this.Stats.SuccessTestCount=success;
+   this.Stats.FailureTestCount=failure;
+   this.Stats.Calculate();
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void UnitTest::printSummary(void)
+  {
+   this.calculateStats();
+   this.Stats.PrintSummary(this.Name);
+  }
+//+------------------------------------------------------------------+
+//|                                                                  |
+//+------------------------------------------------------------------+
+void UnitTest::printDetail(void)
+  {
+   UnitTestData *data;
+
+   this.Logger.Log("UnitTest : Results Detail : Start : "+this.Name);
+
+   for(data=m_testList.GetLastNode(); data!=NULL; data=m_testList.GetPrevNode())
+     {
+      if(data.m_result)
+        {
          this.Logger.Log(StringFormat("UnitTest : Result : PASS : %s",data.m_name));
         }
       else
         {
-         m_failureTestCount+=1;
          this.Logger.Log(StringFormat("UnitTest : Result : FAIL : %s : %s",data.m_name,data.m_message));
         }
      }
 
-   double successPercent=0;
-   if(m_allTestCount!=0)
-     {
-      successPercent=100.0 *((double)m_successTestCount/(double)m_allTestCount);
-     }
-   double failurePrcent=0;
-   if(m_allTestCount!=0)
-     {
-      failurePrcent=100.0 *((double)m_failureTestCount/(double)m_allTestCount);
-     }
-
-   int totalAssertions=m_successAssertionCount+m_failureAssertionCount;
-   double assertSuccessPercent=0;
-   if(totalAssertions!=0)
-     {
-      assertSuccessPercent=100.0 *((double)m_successAssertionCount/(double)totalAssertions);
-     }
-   double assertFailurePrcent=0;
-   if(totalAssertions!=0)
-     {
-      assertFailurePrcent=100.0 *((double)m_failureAssertionCount/(double)totalAssertions);
-     }
-
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Tests Run : %d",m_allTestCount));
-
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Assertions Run : %d",totalAssertions));
-
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Test Pass Rate : %.2f%%",successPercent));
-
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Assertion Pass Rate : %.2f%%",assertSuccessPercent));
-
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Tests Pass : %d",m_successTestCount));
-
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Assertions Pass : %d",m_successAssertionCount));
-
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Tests Fail : %d",m_failureTestCount));
-
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Total Assertions Fail : %d",m_failureAssertionCount));
-
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Test Fail Rate : %.2f%%",failurePrcent));
-
-   this.Logger.Log(StringFormat("UnitTest : Results Summary : Assertion Fail Rate : %.2f%%",assertFailurePrcent));
-
-   this.Logger.Log("UnitTest : Results Summary : End");
+   this.Logger.Log("UnitTest : Results Detail : End : "+this.Name);
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -264,12 +251,12 @@ bool UnitTest::assertEquals(string name,string message,T expected,T actual)
 bool UnitTest::assertTrue(string name,string message,bool actual)
   {
    return this.assertEquals(name,message,true,actual);
-     }
+  }
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
 bool UnitTest::assertFalse(string name,string message,bool actual)
-     {
+  {
    return this.assertEquals(name,message,false,actual);
   }
 //+------------------------------------------------------------------+
@@ -298,11 +285,15 @@ bool UnitTest::assertEquals(string name,string message,T &expected[],T &actual[]
                                        ((string)expected[i]),"> but found <",((string)actual[i]),">");
             setFailure(name,m);
             this.Logger.Error("Test failed: "+name+": "+m);
-            return;
+            out=false;
            }
         }
+     }
+   if(out)
+     {
       setSuccess(name);
      }
+   return out;
   }
 //+------------------------------------------------------------------+
 //|                                                                  |
