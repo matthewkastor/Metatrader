@@ -5,6 +5,8 @@
 !.gitignore
 !.gitattributes
 !/templates/*.htm
+!/templates/Default.tpl
+!/templates/tester.tpl
 !/MQL4/Images/*.*
 
 /**/TEMP
