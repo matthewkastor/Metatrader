@@ -8,6 +8,7 @@
 #property version   "1.00"
 #property strict
 
+#include <Common\Strings.mqh>
 #include <MarketWatch\MarketWatch.mqh>
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -52,7 +53,7 @@ void BasketComponent::BasketComponent()
 //+------------------------------------------------------------------+
 string BasketComponent::GetBaseCurrency()
   {
-   if(this._baseCurrency=="")
+   if(Strings::IsNullOrBlank(this._baseCurrency))
      {
       this._baseCurrency=SymbolInfoString(this.Symbol_Name,SYMBOL_CURRENCY_BASE);
      }
@@ -63,7 +64,7 @@ string BasketComponent::GetBaseCurrency()
 //+------------------------------------------------------------------+
 string BasketComponent::GetCounterCurrency()
   {
-   if(this._counterCurrency=="")
+   if(Strings::IsNullOrBlank(this._counterCurrency))
      {
       this._counterCurrency=SymbolInfoString(this.Symbol_Name,SYMBOL_CURRENCY_PROFIT);
      }

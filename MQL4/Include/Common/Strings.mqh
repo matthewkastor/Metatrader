@@ -15,7 +15,8 @@ typedef string(*TStringAction)(string const);
 class Strings
   {
 public:
-
+   static string const Empty;
+   static string const Null;
    //+------------------------------------------------------------------+
    //| Does something to the first character of a string.
    //| @param str is the input string
@@ -142,5 +143,12 @@ public:
       string chop=StringSubstr(searchString,0,len);
       return (StringCompare(chop,needle)==0);
      }
+     
+   static bool IsNullOrBlank(string const s)
+     {
+      return ((s==Strings::Null) || (s=="") || (s==Strings::Empty));
+     }
   };
+static string const Strings::Empty="";
+static string const Strings::Null=NULL;
 //+------------------------------------------------------------------+
