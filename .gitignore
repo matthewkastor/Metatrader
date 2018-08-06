@@ -4,10 +4,12 @@
 !*.md
 !.gitignore
 !.gitattributes
+!/LICENSE.txt
+!/history/symbolsets/Demo_*.set
 !/templates/*.htm
 !/templates/Default.tpl
 !/templates/tester.tpl
-!/history/symbolsets/Demo_*.set
+!/WinMerge Filters/*.flt
 !/MQL4/Images/*.*
 
 /**/TEMP
