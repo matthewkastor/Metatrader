@@ -7,6 +7,7 @@
 !/templates/*.htm
 !/templates/Default.tpl
 !/templates/tester.tpl
+!/history/symbolsets/Demo_*.set
 !/MQL4/Images/*.*
 
 /**/TEMP
@@ -64,7 +65,9 @@
 
 /MQL4/Logs
 
-/MQL4/Presets
+/MQL4/Presets/*.*
+/MQL4/Presets/**/*.*
+!/MQL4/Presets/Demo/*.set
 
 /MQL4/Projects
 
