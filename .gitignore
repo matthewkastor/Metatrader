@@ -2,23 +2,43 @@
 !*.mq4
 !*.mqh
 !*.md
+!*.set
 !.gitignore
 !.gitattributes
-!/LICENSE.txt
+!LICENSE.txt
+
+origin.txt
+
+/TEMP
+/**/TEMP
+tmp.*
+temp.*
+
+/secret
+/**/secret
+secret.*
+
+/config
+
+/history
 !/history/symbolsets/Demo_*.set
+
+/logs
+
+/templates
 !/templates/*.htm
 !/templates/Default.tpl
 !/templates/tester.tpl
-!/WinMerge Filters/*.flt
-!/MQL4/Images/*.*
 
-/**/TEMP
+/tester
 
 /MQL4/**/Downloads
 
 /MQL4/Files
 
 /MQL4/Experts/Downloads
+
+!/MQL4/Images/*.*
 
 /MQL4/Include/Arrays
 /MQL4/Include/Canvas
@@ -67,9 +87,8 @@
 
 /MQL4/Logs
 
-/MQL4/Presets/*.*
-/MQL4/Presets/**/*.*
-!/MQL4/Presets/Demo/*.set
+/MQL4/Presets
+!/MQL4/Presets/Demo
 
 /MQL4/Projects
 
