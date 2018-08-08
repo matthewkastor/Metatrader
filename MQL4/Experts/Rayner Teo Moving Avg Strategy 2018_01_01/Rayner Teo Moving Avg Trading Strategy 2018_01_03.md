@@ -31,7 +31,7 @@ Notes taken from his video at https://youtu.be/clAQxb-PMSI
 - Looking to profit from periodic lulz in the momentum of the trend, where the price can pull back to the fast MA and reliably be pushed back up to the recent price extreme.
 
 ## Implmentation
-I have implemented this strategy on my framework here. All of the options described in Rayner's video are available, plus all of the standard features of my framework.
+I have implemented this strategy on my framework here. All of the options described in Rayner's video are available, plus all of the standard features of my framework. The EA is named **RT_MA_Pullback_Strategy**. Just right click the experts folder in metaeditor and compile them all, it'll take less than a minute and you'll see the bot in your trading terminal after that.
 
 What you'll see in this implementation is 3 trendlines, 1 representing the MA for identifying the longer term trend, 2 for defining the borders of the "Value Area". You will also see 3 boxes and 3 bombs. The boxes are proximity sensors for detecting when price touches the fast moving average. The bombs align with the proximity sensors when a touch is detected and the slope of the moving average inside of the box has the same direction as the fast moving average at present. You know, so we can tell that the fast MA has been going in the same direction and has been tested multiple times.
 
