@@ -1,5 +1,6 @@
 # Rayner Teo Moving Average Trading Strategy
 Notes taken from his video at https://youtu.be/clAQxb-PMSI
+[![YouTube link to Rayner Teo's Moving Average Strategy](http://img.youtube.com/vi/clAQxb-PMSI/0.jpg)](http://www.youtube.com/watch?v=clAQxb-PMSI "Rayner Teo's Moving Average Strategy")
 
 ## Summary
 *Looking to enter on pullbacks while there is a strong trend.*
