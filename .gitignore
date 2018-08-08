@@ -9,6 +9,10 @@
 
 origin.txt
 
+/Live
+/**/Live
+live.*
+
 /TEMP
 /**/TEMP
 tmp.*
@@ -87,7 +91,9 @@ secret.*
 
 /MQL4/Logs
 
-/MQL4/Presets
+/MQL4/Presets/Live
+/MQL4/Presets/secret
+/MQL4/Presets/temp
 !/MQL4/Presets/Demo
 
 /MQL4/Projects
