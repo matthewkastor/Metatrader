@@ -12,7 +12,7 @@ Expert advisors, scripts, indicators and code libraries for Metatrader.
 4) Cut and paste the .git folder from your cloned repo into your Metatrader data folder. The .git folder is hidden, so you might need to show hidden files if you don't see it.
 5) Delete the local copy of your clone.
 6) In your git tool of choice, when it is complaining that the repo has disappeared, find the repo in your Metatrader data folder instead of wherever you cloned it to.
-7) Using your git tool, it should show a bunch of changes since you've moved the .git folder. Tell it to undo all of the changes.
+7) Using your git tool, it should show a bunch of changes since you've moved the .git folder. Tell it to undo all of the changes. There should be new files in your data folder now, and the git tool should be saying that there aren't any changes.
 8) Fetch and Pull the latest changes in the master branch of your clone, there shouldn't be any at this point but just in case I checked something in while you were setting up... This should update your Metatrader data folder with all the code. Repeat this whenever you need to get updates of the bots. Let me know if you end up with any files that your git tool thinks you've changed, I'll update the settings to ignore them so you aren't bothered by it. Alternatively, you can just select the file and tell git to undo the changes if you've accidentally edited something.
 
 ## Dev Environment Setup
