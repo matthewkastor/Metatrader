@@ -98,3 +98,4 @@ secret.*
 /MQL4/Scripts/Downloads
 
 !/README images/*.*
+!/**/README images/*.*
