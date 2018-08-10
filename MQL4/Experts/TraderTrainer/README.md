@@ -1,0 +1,1 @@
+![Screenshot of settings](README%20images/Trader%20Trainer%20Settings.png)
