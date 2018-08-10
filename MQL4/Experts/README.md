@@ -36,7 +36,7 @@ These settings control the global behavior of the portfolio manager.
 * **End Day** : The last day of the work week.
 * **Start Time** : The starting time of the work week or work day.
 * **End Time** : The ending time of the work week or work day.
-*  **Use start and stop times daily** : When set to false, the schedule will be enabled from the start day and time until the end day and timei.e. Monday at 8:15 to Friday at 16:45 would only allow trading between Monday at 8:15 a.m. and Friday at 4:45 p.m.. When set to true, the schedule will be considered a recurring daily schedule that begins and ends each day at the start and end time, for each day beginning on the start day and ending on the end day i.e. Monday to Friday from 8:15 to 16:45 would only allow trading between 8:15 a.m. and 4:45 p.m. daily from Monday to Friday.
+*  **Use start and stop times daily** : When set to false, the schedule will be enabled from the start day and time until the end day and time i.e. Monday at 8:15 to Friday at 16:45 would only allow trading between Monday at 8:15 a.m. and Friday at 4:45 p.m.. When set to true, the schedule will be considered a recurring daily schedule that begins and ends each day at the start and end time, for each day beginning on the start day and ending on the end day i.e. Monday to Friday from 8:15 to 16:45 would only allow trading between 8:15 a.m. and 4:45 p.m. daily from Monday to Friday.
 
 *Entry and exit controls*
 
@@ -46,7 +46,7 @@ These settings control the global behavior of the portfolio manager.
 
 **Backtest Custom Optimization Settings**
 
-These settings control the scoring of performance during backtesting. You can use this score to help the backtester's genetic algo select appropriate parameters to test, by selecting the "custom" optimization criteria. You could also skip genetic testing and simply select the "custom" optimization criteria to chart results based on this metric. The final score given combines the metrics specified in these settings with factors for profitability and equity curve "smoothness", so the closer that the final score is to the initial score the better. A perfect score should be nearly impossible.
+These settings control the scoring of performance during backtesting. You can use this score to help the backtester's genetic algo select appropriate parameters to test by selecting the "custom" optimization criteria. You could also skip genetic testing and simply select the "custom" optimization criteria to chart results based on this metric. The final score given combines the metrics specified in these settings with factors for profitability and equity curve "smoothness", so the closer that the final score is to the initial score the better. A perfect score should be nearly impossible.
 
 ![Screenshot of Backtest Custom Optimization Settings](README%20images/Backtest%20Custom%20Optimization%20Settings.png)
 
@@ -56,35 +56,35 @@ These settings control the scoring of performance during backtesting. You can us
 
 * **Minimum Value of StdDev of Gains** : Given a standard deviation of gains from profitable trades, this is the lowest value to consider acceptable. 
 * **Maximum Value of StdDev of Gains** : Given a standard deviation of gains from profitable trades, this is the highest value to consider acceptable.
-* **Weight of metric Gains StdDev Limit** : How important this metric is compared to the others?
+* **Weight of metric Gains StdDev Limit** : How important is this metric compared to the others?
 * **Minimmum Value of StdDev of Losses** : Given a standard deviation of losses from unprofitable trades, this is the lowest value to consider acceptable. 
 * **Maximum Value of StdDev of Losses** : Given a standard deviation of losses from unprofitable trades, this is the maximum value to consider acceptable. 
-* **Weight of metric Losses StdDev Limit** : How important this metric is compared to the others?
+* **Weight of metric Losses StdDev Limit** : How important is this metric compared to the others?
 
 *The net profit range filters out unprofitable or unrealistic results, as in you want to ignore fluke results from spurious market events and luck*
 
 * **Minimum Net Profit** : The minimum acceptable net profit during the testing period.
 * **Maximum Net Profit** : The maximum acceptable net profit during the testing period.
-* **Weight of Metric Net Profit Range** : How important this metric is compared to the others?
+* **Weight of Metric Net Profit Range** : How important is this metric compared to the others?
 
-*The expected average gain metric helps filter out results where TP levels are curve fit to hit a few extremes of price, here the average gain is the net gain divided by the number of trades*
+*The expected average gain (expectancy) metric helps filter out results where TP levels are curve fit to hit a few extremes of price, here the average gain is the net change in balance divided by the number of trades*
 
 * **Minimum Expected Average Gain** : The minimum acceptable average gain.
 * **Maximum Expected Average Gain** : The maximum acceptable average gain.
-* **Weight of Metric Expected Average Gain** : How important this metric is compared to the others?
+* **Weight of Metric Expected Average Gain** : How important is this metric compared to the others?
 
 *The trades per day metric helps filter out results where there was over trading or under trading*
 
 * **Minimum Amount of Trades Per Day** : The minimum amount of trades per day (0.033333 = one trade per month).
 * **Maximum Amount of Trades Per Day** : The maximum amount of trades per day.
-* **Weight of Metric Trades Per Day** : How important this metric is compared to the others?
+* **Weight of Metric Trades Per Day** : How important is this metric compared to the others?
 
 *The largest loss per total gain metric helps filter out curve fit results where there are massive loss trades*
 
-* **Max Percent of Largest Loss Per Total Gain** : The maximum acceptable single loss, as a percent of total gains taken during the testing period.
-* **Weight of Metric Max Percent of Largest Loss Per Total Gain** : How important this metric is compared to the others?
+* **Max Percent of Largest Loss Per Total Gain** : The maximum acceptable single loss, as a percent of total profit (poitive gains only) taken during the testing period.
+* **Weight of Metric Max Percent of Largest Loss Per Total Gain** : How important is this metric compared to the others?
 
 *The median loss per median gain metric tells you your median risk to reward, use it to filter out curve fit results that push the risk reward outside of the design of your strategy*
 
 * **Max Percent of Median Loss Per Median Gain** : The worst median risk reward ratio acceptable. (|median loss|/median gain)
-* **Weight of Metric Max Percent of Median Loss Per Median Gain** : How important this metric is compared to the others?
+* **Weight of Metric Max Percent of Median Loss Per Median Gain** : How important is this metric compared to the others?
