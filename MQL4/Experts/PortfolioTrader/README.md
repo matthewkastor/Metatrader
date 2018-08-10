@@ -1,0 +1,1 @@
+![Screenshot of settings](README%20images/Portfolio%20Trader%20Settings.png)
