@@ -9,3 +9,5 @@ The Keltner channel shift setting will cause this signal to lag behind the curre
 The Tp/Sl setting will ignore signals whose distance between the stop loss and take profit are not at least a multiple of the current spread. You set the multiple here.
 
 The parallel signals setting will add a second instance of this signal that is shifted back by a multiple of the MA Period. This makes the parallel signal a filter for ranging markets with uniform volatility.
+
+See [Portfolio Manager Settings](../README.md#common-settings-for-portfolio-manager) for additional configuration settings.

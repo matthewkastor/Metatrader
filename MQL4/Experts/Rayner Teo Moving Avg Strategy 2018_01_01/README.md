@@ -45,3 +45,5 @@ Now, with all that said, there are two settings files in the MQL4\Presets folder
 What you're looking for while the bot is operating : 3 boxes with bombs inside of them, 3 moving averages fanned out in ascending or descending order (one is buy the other is sell), and the price to fall somewhere between the fast and medium MA. At that point a buy or sell order will open up and the exit strategy you've selected will begin managing the trade. No bars, no math, just boxes, bombs, and easy trend lines to look at. Then, you can set a portfolio of symbols to trade on and watch it go to town on all of them in your demo account... When you're ready to forward test that is...
 
 ![Screenshot of EA Settings](README%20images/Rayner%20Teo%20Moving%20Avg%20Trading%20System%20Settings.png)
+
+See [Portfolio Manager Settings](../README.md#common-settings-for-portfolio-manager) for additional configuration settings.

@@ -46,3 +46,5 @@
 * **Signal Shift** : Shifts the entire signal analysis point away from the current price
 * **Tp/Sl minimum distance, in spreads** : rejects signals that have the take profit and stop loss closer together than the current spread multiplied by this setting.
 * **Quantity of Parallel Signals to use** : This is how many signals to use. Each additional signal beyond the first will have the bollinger band and moving average period multiplied by this number. Basically this gives you multi timeframe analysis, where the higher timeframes are a multiple of whatever period you've chosen. i.e. period of 15 on the minute chart, using 2 parallel signals, will essentially be looking for confirmation between the 15 and 30 minute signal.
+
+See [Portfolio Manager Settings](../README.md#common-settings-for-portfolio-manager) for additional configuration settings.
