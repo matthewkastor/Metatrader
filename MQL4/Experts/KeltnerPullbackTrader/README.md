@@ -1,6 +1,6 @@
 # Keltner Pullback Trader
 
-Trades keltner Channels, which is basically just a channel whose height is defined by ATR and whose center line follows a moving average. This EA buys when the moving average is going up, price is below the mid point of it's high and low within the ATR period, and price is below the moving average. This EA sells when price is above the midpoint, above the moving average, and the moving average is sloping down. Exits are set 1 ATR away from entry price.
+Per request by "Maple Mike", this amazing EA trades keltner Channels, which is basically just a channel whose height is defined by ATR and whose center line follows a moving average. This EA buys when the moving average is going up, price is below the mid point of it's high and low within the ATR period, and price is below the moving average. This EA sells when price is above the midpoint, above the moving average, and the moving average is sloping down. Exits are set 1 ATR away from entry price.
 
 ![Screenshot of settings](README%20images/Keltner%20Pullback%20Trader%20Settings.png)
 
