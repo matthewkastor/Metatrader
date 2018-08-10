@@ -10,6 +10,7 @@ Expert Advisors for metatrader
 * **MA Crossover** : A general purpose program for studying multiple trading systems.
 * **Multi Pair Closer** : A profit and loss manager for currency basket trading.
 * **Portfolio Trader** : A system built on the Portfolio Manager framework, using recent highs and lows as breakout or fade indicators and entering trades accordingly.
+* **Rayner Teo's Moving Average Trading Strategy** : A system built on the portfolio manager framework, implementing a trading strategy described by Rayner Teo.
 * **Trader Trainer** : A program to enable manual trading in the backtester.
 
 ## Common Settings for Portfolio Manager
