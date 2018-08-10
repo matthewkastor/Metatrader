@@ -4,6 +4,8 @@ This EA will monitor the net profit of a currency basket and close all positions
 
 ## Settings
 
+![Screenshot of settings](README%20images/Multi%20Pair%20Closer%20Settings.png)
+
  - **Currency basket** : A comma separated list of the currency pairs to watch. This is case sensitive, so use the exact names of your instruments as shown in the market watch window.
  - **Profit target in account currency** : The net profit amount you're aiming for with the currency basket.
  - **Maximum allowed loss in account currency** : The net loss amount you're willing to withstand.
