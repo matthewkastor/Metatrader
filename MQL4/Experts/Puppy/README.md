@@ -1,0 +1,1 @@
+![Screenshot of settings](README%20images/Puppy%20Settings.png)
