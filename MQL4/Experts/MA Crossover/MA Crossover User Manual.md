@@ -12,6 +12,8 @@ As always, there are no promises of profits while using this program and it is t
 
 ## Settings
 
+![Screenshot of settings](README%20images/MA%20Crossover%20Settings.png)
+
  - **Allowed Trade Direction**: This controls whether the bot is allowed to buy, sell, or do both. It will not cause trades in both directions simultaneously.
  - **Hedging Allowed**: Set this to true to allow trading both directions simultaneously (Must be supported by your broker).
  - **Hidden Tp Sl**: Set this to true to have the bot close positions when take profit or stop loss would hit, without actually placing the tp or sl. This could get dangerous in a live account, since there are many different reasons why you might lose internet connectivity.
