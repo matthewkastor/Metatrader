@@ -26,10 +26,8 @@
 double         Label1Buffer[];
 double         Label2Buffer[];
 
-extern color colorOne=clrRed; //Instrument 1 Color
-extern color colorTwo=clrGray; //Instrument 2 Color
-extern int indicatorPeriod = 14; //Indicator Period
-extern int multiplier=1;
+input int indicatorPeriod = 14; //Indicator Period
+input int multiplier=1;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -40,10 +38,8 @@ int OnInit()
 //--- indicator buffers mapping
    SetIndexBuffer(0,Label1Buffer);
    SetIndexLabel(0,"ATR high");
-   SetIndexStyle(0,0,0,1,colorOne);
    SetIndexBuffer(1,Label2Buffer);
    SetIndexLabel(1,"ATR low");
-   SetIndexStyle(1,0,0,1,colorTwo);
 
 //---
    return(INIT_SUCCEEDED);
@@ -59,7 +55,7 @@ int start()
    while(i>=0)
      {
       Atr = (iATR(Symbol(),Period(),indicatorPeriod,i)*multiplier)/2;
-      Midpoint=Open[i-1];
+      Midpoint=Open[i];
       Label1Buffer[i]=Midpoint + Atr;
       Label2Buffer[i]=Midpoint - Atr;
 
