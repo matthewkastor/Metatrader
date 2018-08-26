@@ -1,11 +1,15 @@
 # Scripts
 Scripts for metatrader
- * Change Time Frame All : Changes the timeframe on all open charts.
- * Change Zoom Level All : Changes the zoom level on all open charts.
- * Scale Auto All : Sets all open charts to automatic scaling.
- * Scale Fix All : Sets all open charts to fixed scaling centered on a window whose height is a percentage of the current price.
- * Scroll Sync Charts : Synchronizes scrolling across two charts.
- * Start Process : Starts an external process from the command line specified in settings.
+
+* **Change Time Frame All** : Changes the timeframe on all open charts.
+* **Change Zoom Level All** : Changes the zoom level on all open charts.
+* **Code Generator** : Generates some source code.
+* **Export Order Book** : Export the active and historic order information to CSV file.
+* **Get All History** : Automatically opens all charts of all symbols in the Market Watch, for all timeframes, and scrolls back until no new history is downloaded. This method is the only way to actually get historic data from your broker.
+* **Scale Auto All** : Sets all open charts to automatic scaling.
+* **Scale Fix All** : Sets all open charts to fixed scaling centered on a window whose height is a percentage of the current price.
+* **Scroll Sync Charts** : Synchronizes scrolling across two charts.
+* **Start Process** : Starts an external process from the command line specified in settings.
 
 ## Scale All Charts
 
@@ -29,9 +33,9 @@ This script allows you to start any arbitrary external program. Use it as-is or 
 
 In order for this script to work, you will have to allow it to import DLLs. The DLL should be present in computers running the windows operating system.
 
-__Script Parameters__
+**Script Parameters**
 
- - Executable name : The executable to run. Include the full path to it if you have to.
- - Commandline parameters : Optional, you can use switches and arguments here.
- - Working directory : Optional, specify the working directory.
- - Window display mode : Set the option for how you want the application to launch.
+* **Executable name** : The executable to run. Include the full path to it if you have to.
+* **Commandline parameters** : Optional, you can use switches and arguments here.
+* **Working directory** : Optional, specify the working directory.
+* **Window display mode** : Set the option for how you want the application to launch.
