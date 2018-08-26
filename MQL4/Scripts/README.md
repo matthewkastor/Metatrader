@@ -1,6 +1,7 @@
 # Scripts
 Scripts for metatrader
 
+* **Canvas Glitter Bomb** : Basic example of drawing 3d scatter plots on the chart utilizing  x,y coordinates as normal and represinting z with transparency.
 * **Change Time Frame All** : Changes the timeframe on all open charts.
 * **Change Zoom Level All** : Changes the zoom level on all open charts.
 * **Code Generator** : Generates some source code.
